@@ -1,19 +1,28 @@
-Rustc bug: https://github.com/rust-lang/rust/issues/132900
+Rustc bug: https://github.com/rust-lang/rust/issues/135332
 
 ## How to reproduce
 
 ```bash
-python3 gen_code.py 4097
-RUSTFLAGS="-g" cargo build --release
+# Threshold for the LLVM error.
+N=1366
+
+# If on nightly:
+#export RUSTFLAGS="-Zverify-llvm-ir"
+
+# OK.
+python3 gen_code.py $((N - 1))
+cargo build --release
+
+# Not OK.
+python3 gen_code.py $N
+cargo build --release
 ```
 
-While if the number is less than 4097, it will work fine.
-```bash
-python3 gen_code.py 4096
-RUSTFLAGS="-g" cargo build --release
+Error:
 ```
-
-
-## What's the problem
-
-A function with 4097 lines of code will cause a panic when the macro is expanded.
+inlinable function call in a function with debug info must have a !dbg location
+  tail call fastcc void @_ZN5alloc5alloc18handle_alloc_error17hfb68ebdb2cc3f698E(i64 noundef 8, i64 noundef 24) #83
+inlinable function call in a function with debug info must have a !dbg location
+  tail call fastcc void @_ZN5alloc5alloc18handle_alloc_error17hfb68ebdb2cc3f698E(i64 noundef 8, i64 noundef 24) #83
+rustc-LLVM ERROR: Broken module found, compilation aborted!
+```

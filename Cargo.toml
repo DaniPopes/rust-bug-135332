@@ -1,7 +1,15 @@
+[workspace]
+members = ["proc", "other"]
+
 [package]
 name = "rust-bug"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-lazy_static = "1.4.0"
+other = { path = "other" }
+
+[profile.release]
+debug = "line-tables-only" # any non-"none" value will do
+lto = "fat" # must be "fat"
+panic = "abort" # not necessary
